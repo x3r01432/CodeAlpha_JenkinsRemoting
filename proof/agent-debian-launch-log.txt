@@ -1,0 +1,9 @@
+SSHLauncher{host='agent-debian', port=22, credentialsId='agent-ssh-key', jvmOptions='', javaPath='', prefixStartSlaveCmd='', suffixStartSlaveCmd='', launchTimeoutSeconds=60, maxNumRetries=10, retryWaitTime=5, sshHostKeyVerificationStrategy=hudson.plugins.sshslaves.verifiers.ManuallyProvidedKeyVerificationStrategy, tcpNoDelay=true, trackCredentials=true}
+[10/23/26 21:54:50] [SSH] Opening SSH connection to agent-debian:22.
+SSH Connection failed with IOException: "Connect timed out", retrying in 5 seconds. There are 10 more retries left.
+SSH Connection failed with IOException: "Connect timed out", retrying in 5 seconds. There are 9 more retries left.
+[10/23/26 21:57:19] [SSH] SSH host key matched the key required for this connection. Connection will be allowed.
+[10/23/26 21:57:19] [SSH] Authentication successful.
+[10/23/26 21:57:19] [SSH] The remote user's environment is:
+[10/23/26 21:57:19] [SSH] Starting sftp client.
+[10/23/26 21:57:19] [SSH] Copying latest remoting.jar...

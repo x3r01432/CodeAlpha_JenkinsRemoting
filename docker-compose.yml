@@ -1,0 +1,44 @@
+name: jenkins-remoting
+services:
+  controller:
+    build: ./controller
+    image: codealpha-jenkins-controller:2.580.1
+    env_file: .env
+    ports: ["8081:8080"]           # web UI only; no inbound agent port exposed
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - ./secrets/agent_ssh_key:/run/secrets/agent_ssh_key:ro
+      - ./secrets/agent_debian_host_key_pub:/run/secrets/agent_debian_host_key_pub:ro
+      - ./secrets/agent_alpine_host_key_pub:/run/secrets/agent_alpine_host_key_pub:ro
+    networks: [ci]
+    depends_on: [agent-debian, agent-alpine]
+    deploy: { resources: { limits: { memory: 2g } } }
+
+  agent-debian:
+    image: jenkins/ssh-agent:6.11.1-jdk21
+    hostname: agent-debian
+    entrypoint: ["/usr/local/bin/entrypoint-wrapper.sh"]
+    volumes:
+      - ./agents/entrypoint-wrapper.sh:/usr/local/bin/entrypoint-wrapper.sh:ro
+      - ./secrets/agent_ssh_key.pub:/run/secrets/authorized_key:ro
+      - ./secrets/agent_debian_host_key:/run/secrets/host_key:ro
+      - ./secrets/agent_debian_host_key.pub:/run/secrets/host_key.pub:ro
+    networks: [ci]
+    deploy: { resources: { limits: { memory: 1g } } }
+
+  agent-alpine:
+    image: jenkins/ssh-agent:6.11.1-alpine-jdk21
+    hostname: agent-alpine
+    entrypoint: ["/usr/local/bin/entrypoint-wrapper.sh"]
+    volumes:
+      - ./agents/entrypoint-wrapper.sh:/usr/local/bin/entrypoint-wrapper.sh:ro
+      - ./secrets/agent_ssh_key.pub:/run/secrets/authorized_key:ro
+      - ./secrets/agent_alpine_host_key:/run/secrets/host_key:ro
+      - ./secrets/agent_alpine_host_key.pub:/run/secrets/host_key.pub:ro
+    networks: [ci]
+    deploy: { resources: { limits: { memory: 1g } } }
+
+networks:
+  ci: {}
+volumes:
+  jenkins_home: {}

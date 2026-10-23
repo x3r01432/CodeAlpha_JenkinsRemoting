@@ -1,0 +1,121 @@
+Started by user admin
+[Pipeline] Start of Pipeline
+[Pipeline] timeout
+Timeout set to expire in 10 min
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Build on linux-amd64 (Debian))
+[Pipeline] node
+Running on agent-debian in /home/jenkins/agent/workspace/multi-agent-demo
+[Pipeline] {
+[Pipeline] sh
++ echo NODE_NAME=agent-debian
+NODE_NAME=agent-debian
++ uname -m
++ . /etc/os-release
++ PRETTY_NAME=Debian GNU/Linux 12 (bookworm)
++ NAME=Debian GNU/Linux
++ VERSION_ID=12
++ VERSION=12 (bookworm)
++ VERSION_CODENAME=bookworm
++ ID=debian
++ HOME_URL=https://www.debian.org/
++ SUPPORT_URL=https://www.debian.org/support
++ BUG_REPORT_URL=https://bugs.debian.org/
++ echo Debian GNU/Linux 12 (bookworm)
++ id -un
++ echo arch=x86_64 os=Debian GNU/Linux 12 (bookworm) user=jenkins
+arch=x86_64 os=Debian GNU/Linux 12 (bookworm) user=jenkins
++ mkdir -p out
++ echo built on agent-debian
+[Pipeline] stash
+Stashed 1 file(s)
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Test in parallel)
+[Pipeline] parallel
+[Pipeline] { (Branch: Test on Debian)
+[Pipeline] { (Branch: Test on Alpine)
+[Pipeline] stage
+[Pipeline] { (Test on Debian)
+[Pipeline] stage
+[Pipeline] { (Test on Alpine)
+[Pipeline] node
+Running on agent-debian in /home/jenkins/agent/workspace/multi-agent-demo
+[Pipeline] node
+[Pipeline] {
+Running on agent-alpine in /home/jenkins/agent/workspace/multi-agent-demo
+[Pipeline] {
+[Pipeline] unstash
+[Pipeline] unstash
+[Pipeline] sh
++ uname -m
++ . /etc/os-release
++ PRETTY_NAME=Debian GNU/Linux 12 (bookworm)
++ NAME=Debian GNU/Linux
++ VERSION_ID=12
++ VERSION=12 (bookworm)
++ VERSION_CODENAME=bookworm
++ ID=debian
++ HOME_URL=https://www.debian.org/
++ SUPPORT_URL=https://www.debian.org/support
++ BUG_REPORT_URL=https://bugs.debian.org/
++ echo debian
++ echo NODE_NAME=agent-debian arch=x86_64 os=debian
+NODE_NAME=agent-debian arch=x86_64 os=debian
++ cat out/build.txt
+built on agent-debian
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] sh
++ uname -m
++ . /etc/os-release
++ NAME='Alpine Linux'
++ ID=alpine
++ VERSION_ID=3.21.3
++ PRETTY_NAME='Alpine Linux v3.21'
++ HOME_URL=https://alpinelinux.org/
++ BUG_REPORT_URL=https://gitlab.alpinelinux.org/alpine/aports/-/issues
++ echo alpine
++ ldd --version
++ head -1
++ echo 'NODE_NAME=agent-alpine arch=x86_64 os=alpine libc=musl libc (x86_64)'
+NODE_NAME=agent-alpine arch=x86_64 os=alpine libc=musl libc (x86_64)
++ cat out/build.txt
+built on agent-debian
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // parallel
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Package on Alpine)
+[Pipeline] node
+Running on agent-alpine in /home/jenkins/agent/workspace/multi-agent-demo
+[Pipeline] {
+[Pipeline] unstash
+[Pipeline] sh
++ echo 'NODE_NAME=agent-alpine'
+NODE_NAME=agent-alpine
++ tar czf artifact.tgz out
++ ls -l artifact.tgz
+-rw-r--r--    1 jenkins  jenkins        161 Oct 23 21:58 artifact.tgz
+[Pipeline] archiveArtifacts
+Archiving artifacts
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // timeout
+[Pipeline] End of Pipeline
+Finished: SUCCESS

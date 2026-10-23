@@ -1,0 +1,70 @@
+jenkins:
+  systemMessage: "CodeAlpha Task 2 - Jenkins Remoting demo (configured as code)"
+  numExecutors: 0          # never run builds on the controller
+  mode: EXCLUSIVE
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  crumbIssuer: "standard"
+  slaveAgentPort: -1       # inbound TCP port disabled: agents are SSH-launched
+  nodes:
+    - permanent:
+        name: "agent-debian"
+        labelString: "linux linux-amd64 debian"
+        remoteFS: "/home/jenkins/agent"
+        numExecutors: 2
+        mode: EXCLUSIVE
+        launcher:
+          ssh:
+            host: "agent-debian"
+            port: 22
+            credentialsId: "agent-ssh-key"
+            launchTimeoutSeconds: 60
+            maxNumRetries: 10
+            retryWaitTime: 5
+            sshHostKeyVerificationStrategy:
+              manuallyProvidedKeyVerificationStrategy:
+                key: "${readFile:/run/secrets/agent_debian_host_key_pub}"
+    - permanent:
+        name: "agent-alpine"
+        labelString: "linux linux-amd64-alpine alpine musl"
+        remoteFS: "/home/jenkins/agent"
+        numExecutors: 2
+        mode: EXCLUSIVE
+        launcher:
+          ssh:
+            host: "agent-alpine"
+            port: 22
+            credentialsId: "agent-ssh-key"
+            launchTimeoutSeconds: 60
+            maxNumRetries: 10
+            retryWaitTime: 5
+            sshHostKeyVerificationStrategy:
+              manuallyProvidedKeyVerificationStrategy:
+                key: "${readFile:/run/secrets/agent_alpine_host_key_pub}"
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - basicSSHUserPrivateKey:
+              scope: SYSTEM
+              id: "agent-ssh-key"
+              username: "jenkins"
+              description: "SSH key the controller uses to launch agents"
+              privateKeySource:
+                directEntry:
+                  privateKey: "${readFile:/run/secrets/agent_ssh_key}"
+security:
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: false   # seed script below is admin-owned config, not user input
+jobs:
+  - file: /usr/share/jenkins/ref/jobs.groovy
+unclassified:
+  location:
+    url: "http://localhost:8081/"

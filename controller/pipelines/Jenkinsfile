@@ -1,0 +1,44 @@
+// Each stage picks an agent by label; nothing runs on the controller.
+pipeline {
+  agent none
+  options { timeout(time: 10, unit: 'MINUTES') }
+  stages {
+    stage('Build on linux-amd64 (Debian)') {
+      agent { label 'linux-amd64' }
+      steps {
+        sh '''
+          echo "NODE_NAME=$NODE_NAME"
+          echo "arch=$(uname -m) os=$(. /etc/os-release; echo $PRETTY_NAME) user=$(id -un)"
+          mkdir -p out && echo "built on $NODE_NAME" > out/build.txt
+        '''
+        stash name: 'build', includes: 'out/**'
+      }
+    }
+    stage('Test in parallel') {
+      parallel {
+        stage('Test on Debian') {
+          agent { label 'debian' }
+          steps {
+            unstash 'build'
+            sh 'echo "NODE_NAME=$NODE_NAME arch=$(uname -m) os=$(. /etc/os-release; echo $ID)"; cat out/build.txt'
+          }
+        }
+        stage('Test on Alpine') {
+          agent { label 'alpine' }
+          steps {
+            unstash 'build'
+            sh 'echo "NODE_NAME=$NODE_NAME arch=$(uname -m) os=$(. /etc/os-release; echo $ID) libc=$(ldd --version 2>&1 | head -1)"; cat out/build.txt'
+          }
+        }
+      }
+    }
+    stage('Package on Alpine') {
+      agent { label 'linux-amd64-alpine' }
+      steps {
+        unstash 'build'
+        sh 'echo "NODE_NAME=$NODE_NAME"; tar czf artifact.tgz out && ls -l artifact.tgz'
+        archiveArtifacts artifacts: 'artifact.tgz'
+      }
+    }
+  }
+}
